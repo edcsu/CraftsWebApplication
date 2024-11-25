@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
+using CraftsWebApplication.Core.Helpers;
 using CraftsWebApplication.Models;
 using Microsoft.AspNetCore.Hosting;
 
@@ -25,14 +24,7 @@ namespace CraftsWebApplication.Services
 
         public IEnumerable<Product> GetProducts()
         {
-            using (var jsonFileReader = File.OpenText(JsonFileName))
-            {
-                return JsonSerializer.Deserialize<List<Product>>(jsonFileReader.ReadToEnd(),
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive  = true
-                    });
-            }
+            return JsonFileConverter.GetContent(JsonFileName);
         }
 
         public void AddRating(string id, int rating)
@@ -51,17 +43,7 @@ namespace CraftsWebApplication.Services
                 query.Ratings = ratings.ToArray();
             }
 
-            using (var outputStream = File.OpenWrite(JsonFileName))
-            {
-                JsonSerializer.Serialize<List<Product>> (
-                    new Utf8JsonWriter(outputStream, new JsonWriterOptions
-                    {
-                        SkipValidation = true,
-                        Indented = true
-                    }),
-                    products
-                );
-            }
+            JsonFileConverter.WriteContent(JsonFileName, products);
         }
     }
 }
